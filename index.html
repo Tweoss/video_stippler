@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<head>
+    <title>Video Stipplings</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden
+        }
+        
+        svg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%
+        }
+        
+        video {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <h1>Click me!</h1>
+    <video controls>
+        <source id="video" src="./video/IMG_3616.mov" type="video/mp4"></source>
+        Sorry, your browser doesn't support embedded H264 videos.
+    </video>
+    <script src="./index.js"></script>
+
+</body>
