@@ -1,21 +1,20 @@
 'use strict';
 
-const TOTAL_POINTS = 6000,
-    TIME_INTERVAL = 400;
+const TOTAL_POINTS = 6000;
 
 let video = document.querySelector("video");
-console.log(video)
-video.onloadeddata = () => {
+video.addEventListener('loadedmetadata', () => {
 
     let canvas = document.createElement('canvas'),
         context = canvas.getContext('2d');
     let width = canvas.width = video.videoWidth;
     let height = canvas.height = video.videoHeight;
-    let grayscaleData = new Uint8ClampedArray(width * height);
     let px_square_per_point = (width * height) / TOTAL_POINTS,
         cell_side_length = Math.sqrt(px_square_per_point);
 
-    document.querySelector("h1").onclick = (e) => {
+    let trigger = document.querySelector("h1");
+    trigger.innerText = "Click me! (sound on)";
+    trigger.onclick = (e) => {
         e.preventDefault();
         e.target.style.display = "none";
         let svg = d3.select("body")
@@ -45,29 +44,50 @@ video.onloadeddata = () => {
             let imgData = context.getImageData(0, 0, width, height).data;
 
             d3.selectAll("circle")
-                .transition()
-                .duration((d, _) => {
-                    return TIME_INTERVAL;
-                    // return TIME_INTERVAL * Math.random();
-                })
                 .attr("r", (d, i) => {
                     let cumulated_weight = 0;
                     for (let i = Math.floor(d.x - cell_side_length / 2); i < Math.floor(d.x + cell_side_length / 2); i++) {
                         for (let j = Math.floor(d.y - cell_side_length / 2); j < Math.floor(d.y + cell_side_length / 2); j++) {
                             let index = j * width + i;
-                            cumulated_weight += Math.round(j * width + i) < grayscaleData.length ?
-                                ( /*1 - */ (imgData[index * 4] + imgData[index * 4 + 1] + imgData[index * 4 + 2]) / 3 / 255) * 10 / px_square_per_point :
-                                0;
+                            cumulated_weight += (index * 4) < imgData.length ? imgData[index * 4] : 0;
                         }
                     }
-                    return cumulated_weight;
+                    return cumulated_weight * 2 / 3 / 255 * 5 / px_square_per_point;
                 });
             if (!video.ended) {
-                setTimeout(loop, TIME_INTERVAL)
+                requestAnimationFrame(loop);
+            } else {
+                let selection = d3.selectAll("circle");
+                // set each circle to an average RGB for its cell
+                let img = document.querySelector("img");
+                context.drawImage(img, 0, 0, width, height);
+                let imgData = context.getImageData(0, 0, width, height).data;
+                let temp = new Float32Array(selection.size() * 3);
+
+                selection
+                    .each((d, el_index) => {
+                        for (let i = Math.floor(d.x - cell_side_length / 2); i < Math.floor(d.x + cell_side_length / 2); i++) {
+                            for (let j = Math.floor(d.y - cell_side_length / 2); j < Math.floor(d.y + cell_side_length / 2); j++) {
+                                let index = (j * width + i);
+                                if (index < imgData.length) {
+                                    temp[el_index * 3] += imgData[index * 4];
+                                    temp[el_index * 3 + 1] += imgData[index * 4 + 1];
+                                    temp[el_index * 3 + 2] += imgData[index * 4 + 2];
+                                }
+                            }
+                        }
+                    })
+                let colorData = new Uint8ClampedArray(temp.map(d => Math.floor(d / (cell_side_length * cell_side_length))));
+                temp = [];
+                selection
+                    .transition()
+                    .duration(() => { return 2000; })
+                    .attr("fill", (d, i) => {
+                        return "rgb(" + colorData[i * 3] + "," + colorData[i * 3 + 1] + "," + colorData[i * 3 + 2] + ")";
+                    });
+
             }
         };
         loop();
     };
-
-
-}
+})
