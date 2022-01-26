@@ -1,6 +1,6 @@
 'use strict';
 
-const TOTAL_POINTS = 5000;
+const TOTAL_POINTS = 6000;
 
 let video = document.querySelector("video");
 video.addEventListener('loadedmetadata', () => {
@@ -38,26 +38,28 @@ video.addEventListener('loadedmetadata', () => {
         }
 
         video.play();
+        let imgData;
+        let selection = d3.selectAll("circle");
 
         function loop() {
             context.drawImage(video, 0, 0);
-            let imgData = context.getImageData(0, 0, width, height).data;
+            imgData = context.getImageData(0, 0, width, height).data;
 
-            d3.selectAll("circle")
+            selection
                 .attr("r", (d, i) => {
                     let cumulated_weight = 0;
                     for (let i = Math.floor(d.x - cell_side_length / 2); i < Math.floor(d.x + cell_side_length / 2); i++) {
                         for (let j = Math.floor(d.y - cell_side_length / 2); j < Math.floor(d.y + cell_side_length / 2); j++) {
                             let index = j * width + i;
-                            cumulated_weight += (index * 4) < imgData.length ? imgData[index * 4] : 255;
+                            cumulated_weight += (index * 4) < imgData.length ? imgData[index * 4] : 0;
                         }
                     }
                     return cumulated_weight * 2 / 3 / 255 * 5 / px_square_per_point;
                 });
             if (!video.ended) {
-                requestAnimationFrame(loop);
+                setTimeout(loop, 500); // requestAnimationFrame(loop);
+                // requestAnimationFrame(loop);
             } else {
-                let selection = d3.selectAll("circle");
                 // set each circle to an average RGB for its cell
                 let img = document.querySelector("img");
                 context.drawImage(img, 0, 0, width, height);
