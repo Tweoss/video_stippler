@@ -13,7 +13,7 @@ video.addEventListener('loadedmetadata', () => {
         cell_side_length = Math.sqrt(px_square_per_point);
 
     let trigger = document.querySelector("h1");
-    trigger.innerText = "Click me! (sound on)";
+    trigger.innerText = "Click me! (sound on; if this website crashes multiple times on mobile, try a laptop)";
     trigger.onclick = (e) => {
         e.preventDefault();
         e.target.style.display = "none";
@@ -41,21 +41,28 @@ video.addEventListener('loadedmetadata', () => {
         let imgData;
         let selection = d3.selectAll("circle");
 
+
         function loop() {
             context.drawImage(video, 0, 0);
             imgData = context.getImageData(0, 0, width, height).data;
 
-            selection
-                .attr("r", (d, i) => {
-                    let cumulated_weight = 0;
-                    for (let i = Math.floor(d.x - cell_side_length / 2); i < Math.floor(d.x + cell_side_length / 2); i++) {
-                        for (let j = Math.floor(d.y - cell_side_length / 2); j < Math.floor(d.y + cell_side_length / 2); j++) {
-                            let index = j * width + i;
-                            cumulated_weight += (index * 4) < imgData.length ? imgData[index * 4] : 0;
-                        }
+            document.querySelectorAll("circle").forEach(e => {
+                let cumulated_weight = 0;
+                let x = e.cx.baseVal.value;
+                let y = e.cy.baseVal.value;
+                for (let i = Math.floor(x - cell_side_length / 2); i < Math.floor(x + cell_side_length / 2); i++) {
+                    for (let j = Math.floor(y - cell_side_length / 2); j < Math.floor(y + cell_side_length / 2); j++) {
+                        let index = j * width + i;
+                        cumulated_weight += imgData[index * 4] ? imgData[index * 4] : 0;
                     }
-                    return cumulated_weight * 2 / 3 / 255 * 5 / px_square_per_point;
-                });
+                };
+                let r = cumulated_weight * 4 / 3 / 255 * 5 / px_square_per_point;
+                if (Math.abs(r - e.r.baseVal.value) > 0.1) {
+                    e.setAttribute("r", cumulated_weight * 4 / 3 / 255 * 5 / px_square_per_point);
+                }
+
+            });
+
             if (!video.ended) {
                 requestAnimationFrame(loop);
             } else {
