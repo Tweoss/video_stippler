@@ -13,7 +13,7 @@ video.addEventListener('loadedmetadata', () => {
         cell_side_length = Math.sqrt(px_square_per_point);
 
     let trigger = document.querySelector("h1");
-    trigger.innerText = "Click me!";
+    trigger.innerText = "Click me! (sound on)";
     trigger.onclick = (e) => {
         e.preventDefault();
         e.target.style.display = "none";
