@@ -57,8 +57,7 @@ video.addEventListener('loadedmetadata', () => {
                     return cumulated_weight * 2 / 3 / 255 * 5 / px_square_per_point;
                 });
             if (!video.ended) {
-                setTimeout(loop, 500); // requestAnimationFrame(loop);
-                // requestAnimationFrame(loop);
+                requestAnimationFrame(loop);
             } else {
                 // set each circle to an average RGB for its cell
                 let img = document.querySelector("img");
