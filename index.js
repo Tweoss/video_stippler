@@ -1,6 +1,6 @@
 'use strict';
 
-const TOTAL_POINTS = 6000;
+const TOTAL_POINTS = 5000;
 
 let video = document.querySelector("video");
 video.addEventListener('loadedmetadata', () => {
@@ -49,7 +49,7 @@ video.addEventListener('loadedmetadata', () => {
                     for (let i = Math.floor(d.x - cell_side_length / 2); i < Math.floor(d.x + cell_side_length / 2); i++) {
                         for (let j = Math.floor(d.y - cell_side_length / 2); j < Math.floor(d.y + cell_side_length / 2); j++) {
                             let index = j * width + i;
-                            cumulated_weight += (index * 4) < imgData.length ? imgData[index * 4] : 0;
+                            cumulated_weight += (index * 4) < imgData.length ? imgData[index * 4] : 255;
                         }
                     }
                     return cumulated_weight * 2 / 3 / 255 * 5 / px_square_per_point;
